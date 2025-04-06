@@ -3,6 +3,7 @@
 export function initialize(id, dotNetReference) {
     var element = document.getElementById(id);
     var parent = element.parentElement;
+    const preview = element.getElementsByClassName('fluent-tile-grid-item-preview')[0];
 
     if (!element) {
         return;
@@ -22,7 +23,9 @@ export function initialize(id, dotNetReference) {
         element: element,
         dotNetHelper: dotNetReference,
         parent: parent,
-        orientation: 0
+        orientation: 0,
+        isResizable: false,
+        preview: preview
     };
 
     const resizers = element.querySelectorAll(".fluent-tile-grid-item-resize-handle");
@@ -51,13 +54,22 @@ function beginResize(id, current, e) {
     instance.originalY = instance.element.getBoundingClientRect().top;
     instance.originalMouseX = e.pageX;
     instance.originalMouseY = e.pageY;
+    instance.isResizable = true;
     window.addEventListener('mousemove', resize);
     window.addEventListener('mouseup', stopResize);
 
+    if (instance.preview) {
+        instance.preview.style.width = instance.originalWidth;
+        instance.preview.style.height = instance.originalHeight;
+        instance.preview.style.display = 'block';
+    }
+
     function resize(e) {
+        const width = instance.originalWidth + (e.pageX - instance.originalMouseX);
+        const height = instance.originalHeight + (e.pageY - instance.originalMouseY);
+
+
         if (current.classList.contains('fluent-tile-grid-cursor-nwse-resize')) {
-            const width = instance.originalWidth + (e.pageX - instance.originalMouseX);
-            const height = instance.originalHeight + (e.pageY - instance.originalMouseY);
             instance.orientation = 2;
 
             if (width > instance.minimumSize) {
@@ -67,13 +79,22 @@ function beginResize(id, current, e) {
             if (height > instance.minimumSize) {
                 instance.newHeight = height
             }
+
+            if (instance.preview) {
+                instance.preview.style.width = width + "px";
+                instance.preview.style.height = height + "px";
+            }
         }
         else if (current.classList.contains('fluent-tile-grid-cursor-ns-resize')) {
-            const height = instance.originalHeight + (e.pageY - instance.originalMouseY)
             instance.orientation = 1;
 
             if (height > instance.minimumSize) {
                 instance.newHeight = height
+            }
+
+            if (instance.preview) {
+                instance.preview.style.height = height + "px";
+                instance.preview.style.width = instance.originalWidth + "px";
             }
         }
         else if (current.classList.contains('fluent-tile-grid-cursor-ew-resize')) {
@@ -83,13 +104,21 @@ function beginResize(id, current, e) {
             if (width > instance.minimumSize) {
                 instance.newWidth = width
             }
+
+            if (instance.preview) {
+                instance.preview.style.width = width + "px";
+                instance.preview.style.height = instance.originalHeight + "px";
+            }
         }
     }
 
     function stopResize() {
         window.removeEventListener('mousemove', resize);
         window.removeEventListener('mouseup', stopResize);
-        
+        if (instance.preview) {
+            instance.preview.style.display = 'none';
+            instance.isResizable = false;
+        }
 
         const value = {
             orientation: instance.orientation,
@@ -118,6 +147,14 @@ function beginResize(id, current, e) {
         };
 
         instance.dotNetHelper.invokeMethodAsync('Resized', value);
+
+        instance.originalWidth = parseFloat(getComputedStyle(instance.element, null).getPropertyValue('width').replace('px', ''));
+        instance.originalHeight = parseFloat(getComputedStyle(instance.element, null).getPropertyValue('height').replace('px', ''));
+
+        if (instance.preview) {
+            instance.preview.style.width = instance.originalWidth;
+            instance.preview.style.height = instance.originalHeight;
+        }
 
     }
 }

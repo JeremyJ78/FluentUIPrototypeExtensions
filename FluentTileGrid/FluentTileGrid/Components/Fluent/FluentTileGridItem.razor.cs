@@ -50,6 +50,10 @@ public partial class FluentTileGridItem
 
     private string TitleId { get; } = Guid.NewGuid().ToString();
 
+    private string PreviewClass => $"{Class} fluent-tile-grid-item-preview";
+
+    private string PreviewStyle => "position: absolute; opacity: 0.4; display: none; padding: 0 !important;";
+
     protected override void OnInitialized()
     {
         base.OnInitialized();
