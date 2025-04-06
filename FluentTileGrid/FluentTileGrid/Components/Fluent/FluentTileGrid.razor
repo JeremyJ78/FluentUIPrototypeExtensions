@@ -1,0 +1,20 @@
+﻿@namespace FluentUI.Components
+@inherits FluentComponentBase
+
+<CascadingValue Value="this" IsFixed>
+    @ChildContent
+    <FluentDragContainer OnDropEnd=@OnDropEnd TItem="FluentTileGridItem">
+        <div data-id="@DataId"
+             spacing="@Spacing"
+             @attributes=AdditionalAttributes
+             class="@InternalClass" 
+             dir="@GlobalState.Dir.ToAttributeValue()" 
+             style="@InternalStyle"
+             role="list">
+            @foreach(var item in _children)
+            {
+                @item.ItemRendered
+            }
+        </div>
+    </FluentDragContainer>
+</CascadingValue>

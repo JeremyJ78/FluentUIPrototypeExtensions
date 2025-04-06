@@ -1,0 +1,60 @@
+﻿@namespace FluentUI.Components
+@inherits FluentComponentBase
+
+@code {
+
+    public FluentTileGridItem()
+    {
+        Id = RandomHelper.GenerateString(15);
+
+        ItemRendered = __builder =>
+        {
+            if (IsVisible)
+            {
+                <FluentDropZone Id="@GetId()"
+                                Style="@InternalStyle"
+                                aria-dropeffect="@(Parent.CanResize || Parent.CanReorder ? "execute" : null)"
+                                aria-grabbed="@(Parent.CanResize || Parent.CanReorder)"
+                                TItem="FluentTileGridItem"
+                                Draggable="@Parent.CanReorder"
+                                Droppable="@Parent.CanReorder">
+                    <FluentCard Class="@Class"
+                                @key=@GetId()
+                                role="listitem"
+                                aria-label="@Header"
+                                aria-keyshortcuts="Enter"
+                                Style="@InternalCardStyle">
+                        <div class="fluent-tile-grid-item-header fluent-card-header @(HeaderClass)">
+                            @if (HeaderTemplate is not null)
+                            {
+                                @HeaderTemplate
+                            }
+                            else
+                            {
+                                <div class="fluent-tile-grid-item-title" id="@($"{TitleId}{Order}")">
+                                    @Header
+                                </div>
+                            }
+                        </div>
+
+                        <FluentDivider Role="DividerRole.Separator" />
+
+                        <div class="fluent-tile-grid-item-body fluent-card-body">
+                            @ChildContent
+                        </div>
+
+                        @if (Parent.CanResize)
+                        {
+                            foreach (var item in Parent.ResizeHandles)
+                            {
+                                string css = $"fluent-tile-grid-item-resize-handle fluent-tile-grid-cursor-{item.Key.ToAttributeValue()}-resize touch-action-none";
+                                <div class="@css" style="@item.Value" />
+                            }
+                        }
+                    </FluentCard>
+                </FluentDropZone>
+            }
+        };
+    }
+
+}
