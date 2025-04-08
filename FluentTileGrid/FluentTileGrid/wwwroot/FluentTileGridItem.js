@@ -1,11 +1,12 @@
 ﻿const _instances = [];
 
 export function initialize(id, dotNetReference) {
-    var element = document.getElementById(id);
-    var parent = element.parentElement;
-    const preview = element.getElementsByClassName('fluent-tile-grid-item-preview')[0];
+    var dropZone = document.getElementById(id);
+    var parent = dropZone.parentElement;
+    const preview = dropZone.getElementsByClassName('fluent-tile-grid-item-preview')[0];
+    const original = dropZone.getElementsByClassName('fluent-tile-grid-item-original')[0];
 
-    if (!element) {
+    if (!dropZone) {
         return;
     }
 
@@ -20,15 +21,15 @@ export function initialize(id, dotNetReference) {
         newWidth: 0,
         newHeight: 0,
         resizers: [],
-        element: element,
         dotNetHelper: dotNetReference,
         parent: parent,
         orientation: 0,
         isResizable: false,
-        preview: preview
+        preview: preview,
+        original: original
     };
 
-    const resizers = element.querySelectorAll(".fluent-tile-grid-item-resize-handle");
+    const resizers = dropZone.querySelectorAll(".fluent-tile-grid-item-resize-handle");
 
     _instances[id].resizers = [];
 
@@ -48,10 +49,10 @@ function beginResize(id, current, e) {
         return;
     }
 
-    instance.originalWidth = parseFloat(getComputedStyle(instance.element, null).getPropertyValue('width').replace('px', ''));
-    instance.originalHeight = parseFloat(getComputedStyle(instance.element, null).getPropertyValue('height').replace('px', ''));
-    instance.originalX = instance.element.getBoundingClientRect().left;
-    instance.originalY = instance.element.getBoundingClientRect().top;
+    instance.originalWidth = parseFloat(getComputedStyle(instance.original, null).getPropertyValue('width').replace('px', ''));
+    instance.originalHeight = parseFloat(getComputedStyle(instance.original, null).getPropertyValue('height').replace('px', ''));
+    instance.originalX = instance.original.getBoundingClientRect().left;
+    instance.originalY = instance.original.getBoundingClientRect().top;
     instance.originalMouseX = e.pageX;
     instance.originalMouseY = e.pageY;
     instance.isResizable = true;
@@ -112,7 +113,7 @@ function beginResize(id, current, e) {
         }
     }
 
-    function stopResize() {
+    async function stopResize() {
         window.removeEventListener('mousemove', resize);
         window.removeEventListener('mouseup', stopResize);
         if (instance.preview) {
@@ -146,10 +147,10 @@ function beginResize(id, current, e) {
             }
         };
 
-        instance.dotNetHelper.invokeMethodAsync('Resized', value);
+        await instance.dotNetHelper.invokeMethodAsync('Resized', value);
 
-        instance.originalWidth = parseFloat(getComputedStyle(instance.element, null).getPropertyValue('width').replace('px', ''));
-        instance.originalHeight = parseFloat(getComputedStyle(instance.element, null).getPropertyValue('height').replace('px', ''));
+        instance.originalWidth = parseFloat(getComputedStyle(instance.original, null).getPropertyValue('width').replace('px', ''));
+        instance.originalHeight = parseFloat(getComputedStyle(instance.original, null).getPropertyValue('height').replace('px', ''));
 
         if (instance.preview) {
             instance.preview.style.width = instance.originalWidth;

@@ -52,6 +52,8 @@ public partial class FluentTileGridItem
 
     private string PreviewClass => $"{Class} fluent-tile-grid-item-preview";
 
+    private string OriginalClass => $"{Class} fluent-tile-grid-item-original";
+
     private string PreviewStyle => "position: absolute; opacity: 0.4; display: none; padding: 0 !important;";
 
     protected override void OnInitialized()
