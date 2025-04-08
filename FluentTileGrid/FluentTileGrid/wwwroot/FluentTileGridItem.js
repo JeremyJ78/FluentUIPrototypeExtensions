@@ -169,5 +169,9 @@ export function destroy(id) {
                 beginResize(id, instance.resizers[i], e);
             });
         }
+
+        let index = _instances.indexOf(instance);
+        _instances.splice(index, 1);
     }
+
 }
