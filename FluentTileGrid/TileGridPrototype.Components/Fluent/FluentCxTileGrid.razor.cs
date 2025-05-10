@@ -1,13 +1,14 @@
-﻿using FluentUI.Comparers;
+﻿using FluentCx.Comparers;
+using FluentCx.Extensions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.FluentUI.AspNetCore.Components;
 using System.Runtime.CompilerServices;
 
-namespace FluentUI.Components;
+namespace FluentCx.Components;
 
-public partial class FluentTileGrid : FluentComponentBase
+public partial class FluentCxTileGrid : FluentComponentBase
 {
-    private List<FluentTileGridItem> _children = [];
+    private List<FluentCxTileGridItem> _children = [];
 
     private static readonly Dictionary<ResizeHandle, string> _ltrResize = new(EqualityComparer<ResizeHandle>.Default)
     {
@@ -34,14 +35,14 @@ public partial class FluentTileGrid : FluentComponentBase
     [Parameter]
     public bool CanResize { get; set; }
 
-    [Parameter]
-    public string? DataId { get; set; }
-
     /// <summary>
     /// Gets or sets the number of columns in the <see cref="FluentTileGrid"/>.
     /// </summary>
+    /// <remarks>
+    /// When Columns is set to 0 (or below 0), the grid will use auto-fit to fill the container.
+    /// </remarks>
     [Parameter]
-    public int Columns { get; set; }
+    public int Columns { get; set; } = 0;
 
     /// <summary>
     /// Gets or sets the height of the rows.
@@ -64,63 +65,30 @@ public partial class FluentTileGrid : FluentComponentBase
     [Parameter]
     public string? Height { get; set; }
 
-    private string? InternalStyle => GetStyle();
-
-    private string? InternalClass => GetClass();
-
     [Parameter]
     public RenderFragment ChildContent { get; set; } = default!;
 
-    internal void Add(FluentTileGridItem item)
+    internal void Add(FluentCxTileGridItem item)
     {
         _children.Add(item);
         item.Order = _children.Count;
     }
 
-    internal void OnItemParemetersChanged(FluentTileGridItem tileGridItem)
+    internal void OnItemParemetersChanged(FluentCxTileGridItem tileGridItem)
     {
         StateHasChanged();
     }
 
-    internal void Remove(FluentTileGridItem item)
+    internal void Remove(FluentCxTileGridItem item)
     {
         _children.Remove(item);
     }
 
-    private string GetClass()
+    private string GetParentStyle()
     {
         DefaultInterpolatedStringHandler handler = new();
-        handler.AppendLiteral("fluent-tile-grid");
 
-        if (!string.IsNullOrEmpty(Class))
-        {
-            handler.AppendLiteral(" ");
-            handler.AppendFormatted(Class);
-        }
-
-        return handler.ToStringAndClear();
-    }
-
-    private string GetStyle()
-    {
-        DefaultInterpolatedStringHandler handler = new();
-        
-        // Columns
-        handler.AppendLiteral("grid-template-columns: repeat(");
-        handler.AppendFormatted(Columns);
-        handler.AppendLiteral(", minmax(0px, ");
-        handler.AppendFormatted(ColumnWidth);
-        handler.AppendLiteral("));");
-
-        // Rows
-        handler.AppendLiteral(" grid-auto-rows: minmax(0px, ");
-        handler.AppendFormatted(RowHeight);
-        handler.AppendLiteral(");");
-        handler.AppendLiteral("px; padding: ");
-        handler.AppendFormatted(Spacing * 4);
-        handler.AppendLiteral("px;");
-
-        if(!string.IsNullOrEmpty(Width))
+        if (!string.IsNullOrEmpty(Width))
         {
             handler.AppendLiteral(" width: ");
             handler.AppendFormatted(Width);
@@ -134,12 +102,64 @@ public partial class FluentTileGrid : FluentComponentBase
             handler.AppendLiteral(";");
         }
 
-        handler.AppendFormatted(Style);
+        if(!string.IsNullOrEmpty(Style))
+        {
+            handler.AppendFormatted(Style);
+            handler.AppendLiteral(";");
+        }
 
         return handler.ToStringAndClear();
     }
 
-    private void OnDropEnd(FluentDragEventArgs<FluentTileGridItem> e)
+    private string GetStyle()
+    {
+        DefaultInterpolatedStringHandler handler = new();
+
+        // Columns
+        handler.AppendLiteral("grid-template-columns: repeat(");
+
+        if (Columns > 0)
+        {
+            handler.AppendFormatted(Columns);
+        }
+        else
+        {
+            handler.AppendLiteral("auto-fit");
+        }
+
+        handler.AppendLiteral(", minmax(0px, ");
+        handler.AppendFormatted(ColumnWidth);
+        handler.AppendLiteral("));");
+
+        // Rows
+        handler.AppendLiteral(" grid-auto-rows: minmax(0px, ");
+        handler.AppendFormatted(RowHeight);
+        handler.AppendLiteral(");");
+
+        if (!string.IsNullOrEmpty(Width))
+        {
+            handler.AppendLiteral(" width: ");
+            handler.AppendFormatted(Width);
+            handler.AppendLiteral(";");
+        }
+
+        if (!string.IsNullOrEmpty(Height))
+        {
+            handler.AppendLiteral(" height: ");
+            handler.AppendFormatted(Height);
+            handler.AppendLiteral(";");
+        }
+
+        if (!string.IsNullOrEmpty(Style))
+        {
+            handler.AppendFormatted(Style);
+            handler.AppendLiteral(";");
+        }
+
+        return handler.ToStringAndClear();
+    }
+
+    private void OnDropEnd(FluentDragEventArgs<FluentCxTileGridItem> e)
     {
         if (!string.IsNullOrEmpty(e.Source.Id) &&
             !string.IsNullOrEmpty(e.Target.Id))
@@ -147,21 +167,16 @@ public partial class FluentTileGrid : FluentComponentBase
             int sourceIndex = _children.FindIndex(x => x.Id == e.Source.Id);
             int destIndex = _children.FindIndex(x => x.Id == e.Target.Id);
 
-            if (sourceIndex >= 0 && 
+            if (sourceIndex >= 0 &&
                 destIndex >= 0)
             {
                 var firstElement = _children[sourceIndex];
                 var lastElement = _children[destIndex];
 
                 (lastElement.Order, firstElement.Order) = (firstElement.Order, lastElement.Order);
-                _children.Sort(FluentTileGridItemComparer.Default);
+                _children.Sort(FluentCxTileGridItemComparer.Default);
                 StateHasChanged();
             }
         }
-    }
-
-    internal void Refresh()
-    {
-        StateHasChanged();
     }
 }

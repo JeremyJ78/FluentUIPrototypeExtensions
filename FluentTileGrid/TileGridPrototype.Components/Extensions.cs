@@ -1,7 +1,7 @@
-﻿using FluentUI.Components;
+﻿using FluentCx.Components;
 using Microsoft.AspNetCore.Components;
 
-namespace FluentUI.Extensions;
+namespace FluentCx.Extensions;
 
 public static class Extensions
 {

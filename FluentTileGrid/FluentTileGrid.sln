@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.35906.104 d17.14
+VisualStudioVersion = 17.14.35906.104
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TileGridPrototype", "FluentTileGrid\TileGridPrototype.csproj", "{CCCEBEA3-852A-43DD-AEAB-AD604F70952B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TileGridPrototype.Components", "TileGridPrototype.Components\TileGridPrototype.Components.csproj", "{50AE4F26-53FB-42E1-933E-B0E6E4EFBACE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{CCCEBEA3-852A-43DD-AEAB-AD604F70952B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CCCEBEA3-852A-43DD-AEAB-AD604F70952B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CCCEBEA3-852A-43DD-AEAB-AD604F70952B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50AE4F26-53FB-42E1-933E-B0E6E4EFBACE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50AE4F26-53FB-42E1-933E-B0E6E4EFBACE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50AE4F26-53FB-42E1-933E-B0E6E4EFBACE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50AE4F26-53FB-42E1-933E-B0E6E4EFBACE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,4 +1,7 @@
-﻿.fluent-card-header {
+﻿.fluent-tile-grid-item-preview {
+}
+
+.fluent-card-header {
     color: var(--accent-fill-rest);
     border-color: var(--neutral-layer-4, rgba(0, 0, 0, 0.08));
 }
@@ -28,7 +31,7 @@
     position: absolute;
 }
 
-.fluent-tile-grid-cursor-nwse-resize{
+.fluent-tile-grid-cursor-nwse-resize {
     cursor: nwse-resize;
 }
 
@@ -38,11 +41,4 @@
 
 .fluent-tile-grid-cursor-ew-resize {
     cursor: ew-resize;
-}
-
-.touch-action-none {
-    touch-action: none;
-}
-
-.fluent-tile-grid-item-preview {
 }

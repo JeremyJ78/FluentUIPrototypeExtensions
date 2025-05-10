@@ -1,24 +1,32 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using FluentCx.Extensions;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.FluentUI.AspNetCore.Components;
 using Microsoft.JSInterop;
-using FluentUI.Extensions;
+using System.Runtime.CompilerServices;
 
-namespace FluentUI.Components;
+namespace FluentCx.Components;
 
-public partial class FluentTileGridItem
+public partial class FluentCxTileGridItem
     : FluentComponentBase, IAsyncDisposable
 {
     private bool _isRendered;
     private bool _hasParameterChanged;
-    private DotNetObjectReference<FluentTileGridItem>? _dotNetReference;
-    private const string JAVASCRIPT_FILE = "./FluentTileGridItem.js";
-    private IJSObjectReference? _jsModule;
+    private DotNetObjectReference<FluentCxTileGridItem>? _dotNetReference;
+    private const string JAVASCRIPT_FILE = "./_content/TileGridPrototype.Components/FluentCxTileGridItem.js";
+    private IJSObjectReference? _module;
 
     [CascadingParameter]
-    private FluentTileGrid Parent { get; set; } = default!;
+    private FluentCxTileGrid Parent { get; set; } = default!;
 
     [Parameter]
     public bool IsVisible { get; set; } = true;
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnDoubleClick { get; set; }
 
     [Parameter]
     public int RowSpan { get; set; } = 1;
@@ -36,25 +44,30 @@ public partial class FluentTileGridItem
     public RenderFragment? ChildContent { get; set; }
 
     [Inject]
-    private IJSRuntime Module { get; set; } = default!;
+    private IJSRuntime JSRuntime { get; set; } = default!;
 
     internal RenderFragment ItemRendered { get; }
 
-    private string? InternalStyle => $"display: grid; grid-column-end: span {ColumnSpan}; grid-row-end: span {RowSpan}; {Style}";
-
-    private string? InternalCardStyle => "padding: 0 !important";
+    private string? InternalStyle => GetInternalStyle();
 
     internal int Order { get; set; }
 
-    private string HeaderClass => !Parent.CanReorder && !Parent.CanResize ? string.Empty : "touch-action-none";
+    private string GetInternalStyle()
+    {
+        DefaultInterpolatedStringHandler s = new();
 
-    private string TitleId { get; } = Guid.NewGuid().ToString();
+        s.AppendLiteral("display: grid; ");
+        s.AppendLiteral($" grid-column-end: span {ColumnSpan}; ");
+        s.AppendLiteral($"grid-row-end: span {RowSpan}; ");
 
-    private string PreviewClass => $"{Class} fluent-tile-grid-item-preview";
+        if(!string.IsNullOrEmpty(Style))
+        {
+            s.AppendFormatted(Style);
+            s.AppendLiteral("; ");
+        }
 
-    private string OriginalClass => $"{Class} fluent-tile-grid-item-original";
-
-    private string PreviewStyle => "position: absolute; opacity: 0.4; display: none; padding: 0 !important;";
+        return s.ToStringAndClear();
+    }
 
     protected override void OnInitialized()
     {
@@ -78,9 +91,9 @@ public partial class FluentTileGridItem
 
         if (firstRender)
         {
-            _jsModule ??= await Module.InvokeAsync<IJSObjectReference>("import", JAVASCRIPT_FILE);
-            _dotNetReference = DotNetObjectReference.Create(this);
-            await _jsModule.InvokeVoidAsync("initialize", Id, _dotNetReference);
+            _dotNetReference ??= DotNetObjectReference.Create(this);
+            _module ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", JAVASCRIPT_FILE);
+            await _module.InvokeVoidAsync("initialize", Id, _dotNetReference);
         }
     }
 
@@ -88,7 +101,7 @@ public partial class FluentTileGridItem
     {
         base.OnParametersSet();
 
-        if(Parent is not null &&
+        if (Parent is not null &&
             _isRendered &&
             _hasParameterChanged)
         {
@@ -108,7 +121,7 @@ public partial class FluentTileGridItem
     }
 
     [JSInvokable]
-    public void Resized(FluentTileGridItemResizeEventArgs e)
+    public async Task Resized(FluentCxTileGridItemResizeEventArgs e)
     {
         if (Parent is not null)
         {
@@ -144,11 +157,11 @@ public partial class FluentTileGridItem
                 }
             }
 
-            switch(e.Orientation)
+            switch (e.Orientation)
             {
                 case ResizeHandle.Horizontally:
                     {
-                        UpdateColumnCount();   
+                        UpdateColumnCount();
                     }
                     break;
 
@@ -166,16 +179,24 @@ public partial class FluentTileGridItem
                     break;
             }
 
-            Parent.Refresh();
+            if (_module is not null)
+            {
+                await _module.InvokeVoidAsync("resized", Id, ColumnSpan, RowSpan);
+            }
         }
-        
+
     }
 
-    public ValueTask DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         Parent?.Remove(this);
-        GC.SuppressFinalize(this);
 
-        return ValueTask.CompletedTask;
+        if (_module is not null)
+        {
+            await _module.DisposeAsync();
+            _module = null;
+        }
+
+        GC.SuppressFinalize(this);
     }
 }

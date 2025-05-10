@@ -1,4 +1,4 @@
-﻿namespace FluentUI;
+﻿namespace FluentCx;
 
 public static class RandomHelper
 {

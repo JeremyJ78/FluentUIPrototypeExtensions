@@ -1,4 +1,4 @@
-﻿namespace FluentUI.Components;
+﻿namespace FluentCx.Components;
 
 public struct SizeF
 {

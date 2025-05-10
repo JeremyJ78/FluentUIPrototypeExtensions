@@ -1,0 +1,67 @@
+﻿@namespace FluentCx.Components
+@inherits FluentComponentBase
+
+@code {
+
+
+    public FluentCxTileGridItem()
+    {
+        Id = RandomHelper.GenerateString(15);
+
+        ItemRendered = __builder =>
+        {
+            if (IsVisible)
+            {
+                <FluentDropZone Id="@GetId()"
+                                Style="@InternalStyle"
+                                TItem="FluentCxTileGridItem"
+                                Draggable="@Parent.CanReorder"
+                                Droppable="@Parent.CanReorder">
+                        <FluentCard Class="@($"fluent-tile-grid-item-original {Class}")"
+                                @key=@($"fluent-card-{GetId()}")
+                                role="listitem"
+                                @onclick="@OnClick" 
+                                @ondblclick="@OnDoubleClick"
+                                aria-label="@Header"
+                                aria-keyshortcuts="Enter">
+                            @if(HeaderTemplate is not null || !string.IsNullOrEmpty(Header))
+                            {
+                                <div class="fluent-tile-grid-item-header fluent-card-header">
+                                    @if (HeaderTemplate is not null)
+                                    {
+                                        @HeaderTemplate
+                                    }
+                                    else
+                                    {
+                                        <div class="fluent-tile-grid-item-title">
+                                            @Header
+                                        </div>
+                                    }
+                                </div>
+
+                                <FluentDivider Role="DividerRole.Separator" />
+                            }
+
+                            <div class="fluent-tile-grid-item-body fluent-card-body">
+                                @ChildContent
+                            </div>
+
+                            @if (Parent.CanResize)
+                            {
+                                foreach (var item in Parent.ResizeHandles)
+                                {
+                                    string css = $"fluent-tile-grid-item-resize-handle fluent-tile-grid-cursor-{item.Key.ToAttributeValue()}-resize touch-action-none";
+                                    <div class="@css" style="@item.Value" />
+                                }
+                            }
+                        </FluentCard>
+
+                        @if (Parent.CanResize)
+                        {
+                            <FluentCard Class="@($"fluent-tile-grid-item-preview {Class}")" Style="position: absolute; opacity: 0.75; display: none; z-index: 9999"  />
+                        }                    
+                </FluentDropZone>
+            }
+        };
+    }
+}

@@ -1,6 +1,6 @@
-﻿namespace FluentUI.Components;
+﻿namespace FluentCx.Components;
 
-public record FluentTileGridItemResizeEventArgs(
+public record FluentCxTileGridItemResizeEventArgs(
     ResizeHandle Orientation,
     RectF Original,
     PointF MousePosition,
